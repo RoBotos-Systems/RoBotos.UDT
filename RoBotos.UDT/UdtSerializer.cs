@@ -4,9 +4,9 @@ using RoBotos.UDT.Fields;
 
 namespace RoBotos.UDT;
 
-public static class UdtTypeSerializer
+public static class UdtSerializer
 {
-    public static Result<UdtType, string> Deserialize(FileInfo fileInfo)
+    public static Result<UserDefinedType, string> Deserialize(FileInfo fileInfo)
     {
         if (!fileInfo.Exists)
         {
@@ -17,7 +17,7 @@ public static class UdtTypeSerializer
         return Deserialize(stream, fileInfo.Directory!.FullName);
     }
 
-    public static Result<UdtType, string> Deserialize(string path)
+    public static Result<UserDefinedType, string> Deserialize(string path)
     {
         if (!File.Exists(path))
         {
@@ -28,7 +28,7 @@ public static class UdtTypeSerializer
         return Deserialize(stream, Path.GetDirectoryName(path)!);
     }
 
-    public static Result<UdtType, string> Deserialize(StreamReader stream, string referenceDirectory)
+    public static Result<UserDefinedType, string> Deserialize(StreamReader stream, string referenceDirectory)
     {
         var header = stream.ReadLine();
 
@@ -86,7 +86,7 @@ public static class UdtTypeSerializer
             return error;
         }
 
-        return new UdtType(name, version[FirstDigitIndex(version)..].Trim(), entries, comment);
+        return new UserDefinedType(name, version[FirstDigitIndex(version)..].Trim(), entries, comment);
 
         Result<UdtField, string> ParseEntry(ReadOnlySpan<char> span)
         {
@@ -141,7 +141,7 @@ public static class UdtTypeSerializer
                         udt = awl;
                     }
                 }
-                return Deserialize(udt).Require<UdtField>(error: "unreachable: UdtType inherits from UdtField");
+                return Deserialize(udt).Require<UdtField>(error: "unreachable: UserDefinedType inherits from UdtField");
             }
             else if (type.Equals("struct", StringComparison.OrdinalIgnoreCase))
             {
@@ -174,7 +174,7 @@ public static class UdtTypeSerializer
     }
 
 
-    public static string Serialize(UdtType structure)
+    public static string Serialize(UserDefinedType structure)
     {
         var sb = new StringBuilder();
         sb.Append($"TYPE \"{structure.Name}\"");

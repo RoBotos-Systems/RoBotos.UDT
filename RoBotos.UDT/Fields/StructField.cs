@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Immutable;
-
 namespace RoBotos.UDT.Fields;
 
 public record StructField(string Name, ImmutableArray<UdtField> Fields, string Comment) : CompoundField(Name, Comment), IEnumerable<UdtField>
