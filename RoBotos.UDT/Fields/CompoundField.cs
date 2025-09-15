@@ -1,4 +1,4 @@
-﻿namespace RoBotos.UDT.Structure;
+﻿namespace RoBotos.UDT.Fields;
 
 /// <summary>
 /// Represents an <see cref="UdtField"/> composited out of other types.

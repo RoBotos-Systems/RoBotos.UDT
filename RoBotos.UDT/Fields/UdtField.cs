@@ -1,4 +1,4 @@
-namespace RoBotos.UDT.Structure;
+namespace RoBotos.UDT.Fields;
 
 public abstract record UdtField(string Name, string Comment)
 {

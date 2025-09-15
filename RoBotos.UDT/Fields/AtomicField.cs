@@ -1,4 +1,4 @@
-namespace RoBotos.UDT.Structure;
+namespace RoBotos.UDT.Fields;
 
 /// <summary>
 /// A <see cref="UdtField"/> that can be stored in a single database cell

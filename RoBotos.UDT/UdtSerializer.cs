@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Text;
-using RoBotos.UDT.Structure;
+using RoBotos.UDT.Fields;
 
 namespace RoBotos.UDT;
 

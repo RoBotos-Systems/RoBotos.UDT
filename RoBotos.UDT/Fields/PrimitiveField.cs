@@ -1,4 +1,4 @@
-namespace RoBotos.UDT.Structure;
+namespace RoBotos.UDT.Fields;
 
 public record PrimitiveField(string Name, UdtPrimitiveType Type, string Comment, string DefaultValue = "") : AtomicField(Name, Comment)
 {

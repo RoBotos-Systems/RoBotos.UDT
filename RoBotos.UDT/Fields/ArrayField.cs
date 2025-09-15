@@ -1,9 +1,9 @@
-namespace RoBotos.UDT.Structure;
+namespace RoBotos.UDT.Fields;
 
 public sealed record ArrayField(string Name, UdtPrimitiveType Type, Range Range, string Comment, string DefaultValue) : CompoundField(Name, Comment)
 {
-    public int StartIndex { get; } = !Range.Start.IsFromEnd ? Range.Start.Value : throw new InvalidDataException("Cannot index from end with unknown length");
-    public int EndIndex { get; } = !Range.End.IsFromEnd ? Range.End.Value + 1 : throw new InvalidDataException("Cannot index from end with unknown length");
+    public int StartIndex { get; } = !Range.Start.IsFromEnd ? Range.Start.Value : throw new ArgumentException("Cannot index from end with unknown length");
+    public int EndIndex { get; } = !Range.End.IsFromEnd ? Range.End.Value + 1 : throw new ArgumentException("Cannot index from end with unknown length");
     public int Count => EndIndex - StartIndex;
 
     /// <summary>
@@ -23,7 +23,7 @@ public sealed record ArrayField(string Name, UdtPrimitiveType Type, Range Range,
 
     private IEnumerable<AtomicField> FlattenImpl(Func<int, string> nameSupplier)
     {
-        foreach (var i in StartIndex..EndIndex)
+        for (var i = StartIndex; i < EndIndex; i++)
         {
             yield return new PrimitiveField(nameSupplier(i), Type, string.Empty, DefaultValue);
         }

@@ -1,4 +1,4 @@
-using RoBotos.UDT.Structure;
+using RoBotos.UDT.Fields;
 
 namespace RoBotos.UDT;
 

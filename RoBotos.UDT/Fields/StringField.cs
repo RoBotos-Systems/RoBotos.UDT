@@ -1,4 +1,4 @@
-namespace RoBotos.UDT.Structure;
+namespace RoBotos.UDT.Fields;
 
 /// <summary>
 /// An atomic <see cref="UdtField"/> containing an ascii string
