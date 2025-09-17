@@ -2,7 +2,7 @@ using System.Collections.Frozen;
 
 namespace RoBotos.UDT;
 
-public sealed record UdtPrimitiveType(string Name, Type CSharpType, int BitSize)
+public sealed record UdtPrimitiveType(string Name, int BitSize, Type CSharpType)
 {
     public int ByteSize { get; } = (int) float.Ceiling(BitSize / 8f);
 
@@ -10,23 +10,35 @@ public sealed record UdtPrimitiveType(string Name, Type CSharpType, int BitSize)
 
     static UdtPrimitiveType()
     {
+        // based on https://www.spshaus.ch/files/inc/Downloads/Lernumgebung/Downloads/Allgemein/TIA_Portal_Uebersicht_Datentypen.pdf
         UdtPrimitiveType[] types = [
-            new UdtPrimitiveType(ID.Bool, typeof(bool), 1),
+            new UdtPrimitiveType(ID.Bool, BitSize: 1, typeof(bool)),
 
-            new UdtPrimitiveType(ID.Byte, typeof(byte), 8),
-            new UdtPrimitiveType(ID.Word, typeof(ushort), 16),
-            new UdtPrimitiveType(ID.DWord, typeof(uint), 32),
-            new UdtPrimitiveType(ID.LWord, typeof(ulong), 64),
+            new UdtPrimitiveType(ID.Byte, BitSize: 8, typeof(byte)),
+            new UdtPrimitiveType(ID.Word, BitSize: 16, typeof(ushort)),
+            new UdtPrimitiveType(ID.DWord, BitSize: 32, typeof(uint)),
+            new UdtPrimitiveType(ID.LWord, BitSize: 64, typeof(ulong)),
 
-            new UdtPrimitiveType(ID.SInt, typeof(sbyte), 8),
-            new UdtPrimitiveType(ID.Int, typeof(short), 16),
-            new UdtPrimitiveType(ID.DInt, typeof(int), 32),
-            new UdtPrimitiveType(ID.LInt, typeof(long), 64),
+            new UdtPrimitiveType(ID.SInt, BitSize: 8, typeof(sbyte)),
+            new UdtPrimitiveType(ID.USInt, BitSize: 8, typeof(byte)),
+            new UdtPrimitiveType(ID.Int, BitSize: 16, typeof(short)),
+            new UdtPrimitiveType(ID.UInt, BitSize: 16, typeof(ushort)),
+            new UdtPrimitiveType(ID.DInt, BitSize: 32, typeof(int)),
+            new UdtPrimitiveType(ID.UDInt, BitSize: 32, typeof(uint)),
+            new UdtPrimitiveType(ID.LInt, BitSize: 64, typeof(long)),
+            new UdtPrimitiveType(ID.ULInt, BitSize: 64, typeof(ulong)),
 
-            new UdtPrimitiveType(ID.Real, typeof(float), 32), 
-            new UdtPrimitiveType(ID.LReal, typeof(double), 64),
+            new UdtPrimitiveType(ID.Real, BitSize: 32, typeof(float)), 
+            new UdtPrimitiveType(ID.LReal, BitSize: 64, typeof(double)),
 
-            new UdtPrimitiveType(ID.DateTime, typeof(DateTime), 64),
+            new UdtPrimitiveType(ID.Time, BitSize: 32, typeof(TimeOnly)),
+            new UdtPrimitiveType(ID.Tod, BitSize: 32, typeof(TimeOnly)),
+            new UdtPrimitiveType(ID.Date, BitSize: 16, typeof(DateOnly)),
+
+            // .NET DateTime covers year 1 to 10000, way more than any S7 date time format
+            new UdtPrimitiveType(ID.DateTime, BitSize: 64, typeof(DateTime)),
+            new UdtPrimitiveType(ID.LDT, BitSize: 64, typeof(DateTime)),
+            new UdtPrimitiveType(ID.DTL, BitSize: 96, typeof(DateTime)),
         ];
 
         _registry = types.ToFrozenDictionary(static t => t.Name, StringComparer.OrdinalIgnoreCase);
@@ -40,7 +52,7 @@ public sealed record UdtPrimitiveType(string Name, Type CSharpType, int BitSize)
             return result;
         }
 
-        throw new NotImplementedException($"UDT Type {name} is not implemented!");
+        throw new NotImplementedException($"unkown udt primitive {name}");
     }
 
     public static class ID
@@ -61,18 +73,18 @@ public sealed record UdtPrimitiveType(string Name, Type CSharpType, int BitSize)
         public const string Real = "REAL";
         public const string LReal = "LREAL";
         //public const string S5Time = "S5TIME";
-        //public const string Time = "TIME";
+        public const string Time = "TIME";
         //public const string LTime = "LTIME";
         public const string Char = "CHAR";
         public const string WChar = "WCHAR";
         public const string String = "STRING";
         public const string WString = "WSTRING";
-        //public const string Date = "DATE";
-        //public const string Tod = "TOD";
+        public const string Date = "DATE";
+        public const string Tod = "TOD";
         //public const string LTod = "LTOD";
         public const string DateTime = "DATE_AND_TIME";
-        //public const string LDT = "LDT";
-        //public const string DTL = "DTL";
+        public const string LDT = "LDT";
+        public const string DTL = "DTL";
         //public const string Variant = "VARIANT";
     }
 }
