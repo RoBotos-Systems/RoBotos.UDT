@@ -121,16 +121,11 @@ public static class UdtSerializer
             var defaultValue = defaultValueIndex > 0 ? type[(defaultValueIndex + 2)..].Trim() : [];
             type = defaultValueIndex > 0 ? type[..defaultValueIndex].Trim() : type;
 
-            bool isReferenceType = false;
-            if (type.StartsWith('"'))
-            {
-                isReferenceType = true;
-                type = type[1..^1].Trim();
-            }
             var comment = commentIndex > 0 ? span[(commentIndex + 2)..].Trim() : [];
 
-            if (isReferenceType)
+            if (type.StartsWith('"'))
             {
+                type = type[1..^1].Trim();
                 // earlier those files ended in .awl, so if there is no udt we look for an awl, but if that does not exist we use the udt path, to trigger the correct error message
                 var udt = Path.Join(referenceDirectory, $"{type}.udt");
                 if (!Path.Exists(udt))
