@@ -6,7 +6,7 @@ public record StructField(string Name, ImmutableArray<UdtField> Fields, string C
 
     public override IEnumerable<UdtField> EnumerateFields() => Fields;
 
-    public override IEnumerable<AtomicField> FlattenFields(string? prefix = null, char separator = '_')
+    public override IEnumerable<AtomicField> FlattenFields(string? prefix = null, char separator = '.')
         => string.IsNullOrWhiteSpace(prefix)
             ? Fields.Flatten(Name, separator)
             : Fields.Flatten($"{prefix}{separator}{Name}", separator);

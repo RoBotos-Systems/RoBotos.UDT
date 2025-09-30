@@ -31,7 +31,7 @@ public sealed record UdtPrimitiveType(string Name, int BitSize, Type CSharpType)
             new UdtPrimitiveType(ID.Real, BitSize: 32, typeof(float)), 
             new UdtPrimitiveType(ID.LReal, BitSize: 64, typeof(double)),
 
-            new UdtPrimitiveType(ID.Time, BitSize: 32, typeof(TimeOnly)),
+            new UdtPrimitiveType(ID.Time, BitSize: 32, typeof(TimeSpan)),
             new UdtPrimitiveType(ID.Tod, BitSize: 32, typeof(TimeOnly)),
             new UdtPrimitiveType(ID.Date, BitSize: 16, typeof(DateOnly)),
 

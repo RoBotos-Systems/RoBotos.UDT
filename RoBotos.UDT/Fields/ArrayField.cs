@@ -12,11 +12,9 @@ public sealed record ArrayField(string Name, UdtPrimitiveType Type, Range Range,
     public override IEnumerable<UdtField> EnumerateFields() => FlattenImpl(static i => i.ToString());
 
     /// <summary>
-    /// Flattens its elements by creating a simple entry named Name_Index
+    /// Flattens its elements by creating a simple field named Name.Index
     /// </summary>
-    // public override IEnumerable<AtomicField> FlattenEntries(char separator = '_') => FlattenImpl(i => $"{Name}{separator}{i}");
-
-    public override IEnumerable<AtomicField> FlattenFields(string? prefix = null, char separator = '_')
+    public override IEnumerable<AtomicField> FlattenFields(string? prefix = null, char separator = '.')
     {
         return string.IsNullOrWhiteSpace(prefix) ? FlattenImpl(i => $"{Name}{separator}{i}") : FlattenImpl(i => $"{prefix}{separator}{Name}{separator}{i}");
     }

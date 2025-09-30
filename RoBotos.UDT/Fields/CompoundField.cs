@@ -16,5 +16,5 @@ public abstract record CompoundField(string Name, string Comment) : UdtField(Nam
     /// <summary>
     /// When implemented should enumerate all children with their name changed to (prefix_)parentName_childName
     /// </summary>
-    public abstract IEnumerable<AtomicField> FlattenFields(string? prefix = null, char separator = '_');
+    public abstract IEnumerable<AtomicField> FlattenFields(string? prefix = null, char separator = '.');
 }
