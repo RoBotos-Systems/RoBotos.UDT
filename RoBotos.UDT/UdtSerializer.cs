@@ -180,10 +180,10 @@ public static class UdtSerializer
         AppendComment(structure.Comment).AppendLine();
 
         sb.AppendLine($"VERSION : {structure.Version}");
-        sb.AppendLine("\tSTRUCT");
+        sb.AppendLine("   STRUCT");
         AppendEntries(structure.Fields, 2);
 
-        sb.Append("\tEND_STRUCT;\n\nEND_TYPE\n");
+        sb.AppendLine("   END_STRUCT;\n\nEND_TYPE\n");
 
         return sb.ToString();
 
@@ -213,7 +213,7 @@ public static class UdtSerializer
 
         StringBuilder AppendStringEntry(StringField stringEntry)
         {
-            AppendName(stringEntry.Name).Append($" : STRING [{stringEntry.Length}];");
+            AppendName(stringEntry.Name).Append($" : String [{stringEntry.Length}];");
             return AppendComment(stringEntry.Comment).AppendLine();
         }
 
@@ -258,7 +258,7 @@ public static class UdtSerializer
             return SpecialFieldNames.Contains(name) ? sb.Append('"').Append(name).Append('"') : sb.Append(name);
         }
 
-        StringBuilder Indent(int tabs) => sb.AppendRepeated("    ", tabs);
+        StringBuilder Indent(int tabs) => sb.AppendRepeated("   ", tabs); // default indentation of udt files seems to be 3
     }
 
     private static int FirstDigitIndex(ReadOnlySpan<char> s)
