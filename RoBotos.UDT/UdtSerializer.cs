@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Frozen;
+using System.IO;
 using System.Text;
 using RoBotos.UDT.Fields;
 
@@ -28,9 +29,9 @@ public static class UdtSerializer
         return Deserialize(stream, Path.GetDirectoryName(path)!);
     }
 
-    public static Result<UserDefinedType, string> Deserialize(StreamReader stream, string referenceDirectory)
+    public static Result<UserDefinedType, string> Deserialize(StreamReader reader, string referenceDirectory)
     {
-        var header = stream.ReadLine();
+        var header = reader.ReadLine();
 
         if (header is null || !header.StartsWith("TYPE"))
         {
@@ -46,18 +47,18 @@ public static class UdtSerializer
         if (name.Contains('.')) return $"'{name}': names cannot contain '.'";
         var comment = commentIndex > 0 ? span[commentIndex..].ToString() : string.Empty;
 
-        var version = stream.ReadLine()!;
+        var version = reader.ReadLine()!;
         if (!version.StartsWith("version", StringComparison.OrdinalIgnoreCase))
         {
-            version = stream.ReadLine()!; // skip meta data
+            version = reader.ReadLine()!; // skip meta data
         }
 
-        stream.ReadLine(); // skip STRUCT
+        reader.ReadLine(); // skip STRUCT
 
         Result<IEnumerable<UdtField>, string> GetEntries()
         {
             var list = new List<UdtField>();
-            while (stream.ReadLine() is string line)
+            while (reader.ReadLine() is string line)
             {
                 if (string.IsNullOrWhiteSpace(line))
                 {
@@ -115,6 +116,7 @@ public static class UdtSerializer
             }
             var name = span[..nameEndIndex].Trim();
             if (name.Contains('.')) return $"'{name}': names cannot contain '.'";
+            name = name.Trim('"'); // names surrounded by "" seem to be reserved keywords
             var type = span[(separatorIndex + 1)..lineEndIndex].Trim();
 
             var defaultValueIndex = type.IndexOf(":=");
@@ -136,7 +138,8 @@ public static class UdtSerializer
                         udt = awl;
                     }
                 }
-                return Deserialize(udt).Require<UdtField>(error: "unreachable: UserDefinedType inherits from UdtField");
+                return Deserialize(udt).Map(name, static (udt, name) => udt with { Name = name.ToString() })
+                    .Require<UdtField>(error: "unreachable: UserDefinedType inherits from UdtField");
             }
             else if (type.Equals("struct", StringComparison.OrdinalIgnoreCase))
             {
@@ -169,6 +172,7 @@ public static class UdtSerializer
     }
 
 
+    private static readonly FrozenSet<string> SpecialFieldNames = ["Type"];
     public static string Serialize(UserDefinedType structure)
     {
         var sb = new StringBuilder();
@@ -202,20 +206,20 @@ public static class UdtSerializer
 
         StringBuilder AppendSimpleEntry(PrimitiveField simpleEntry)
         {
-            sb.Append($"{simpleEntry.Name} : ");
+            AppendName(simpleEntry.Name).Append(" : ");
             AppendType(simpleEntry.Type, simpleEntry.DefaultValue);
             return AppendComment(simpleEntry.Comment).AppendLine();
         }
 
         StringBuilder AppendStringEntry(StringField stringEntry)
         {
-            sb.Append($"{stringEntry.Name} : STRING [{stringEntry.Length}];");
+            AppendName(stringEntry.Name).Append($" : STRING [{stringEntry.Length}];");
             return AppendComment(stringEntry.Comment).AppendLine();
         }
 
         StringBuilder AppendStructEntry(StructField structEntry, int tabs)
         {
-            sb.Append($"{structEntry.Name} : Struct");
+            AppendName(structEntry.Name).Append($" : Struct");
             AppendComment(structEntry.Comment).AppendLine();
             AppendEntries(structEntry.Fields, tabs + 1);
             return Indent(tabs).AppendLine("END_STRUCT;");
@@ -223,7 +227,7 @@ public static class UdtSerializer
 
         StringBuilder AppendArrayEntry(ArrayField arrayEntry)
         {
-            sb.Append($"{arrayEntry.Name} : Array[{arrayEntry.Range}] of ");
+            AppendName(arrayEntry.Name).Append($" : Array[{arrayEntry.Range}] of ");
             AppendType(arrayEntry.Type, arrayEntry.DefaultValue);
             return AppendComment(arrayEntry.Comment).AppendLine();
         }
@@ -242,12 +246,16 @@ public static class UdtSerializer
             return sb;
         }
 
-
         StringBuilder AppendComment(string comment)
         {
             if (string.IsNullOrWhiteSpace(comment))
                 return sb;
             return sb.Append("   // ").Append(comment);
+        }
+
+        StringBuilder AppendName(string name)
+        {
+            return SpecialFieldNames.Contains(name) ? sb.Append('"').Append(name).Append('"') : sb.Append(name);
         }
 
         StringBuilder Indent(int tabs) => sb.AppendRepeated("    ", tabs);
