@@ -138,8 +138,7 @@ public static class UdtSerializer
                         udt = awl;
                     }
                 }
-                return Deserialize(udt).Map(name, static (udt, name) => udt with { Name = name.ToString() })
-                    .Require<UdtField>(error: "unreachable: UserDefinedType inherits from UdtField");
+                return Deserialize(udt).Map(name, static (udt, name) => udt with { Name = name.ToString() }).As<UdtField>();
             }
             else if (type.Equals("struct", StringComparison.OrdinalIgnoreCase))
             {
