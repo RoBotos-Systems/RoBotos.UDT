@@ -1,4 +1,5 @@
-﻿using System.Collections.Frozen;
+﻿using System.Buffers;
+using System.Collections.Frozen;
 using System.IO;
 using System.Text;
 using RoBotos.UDT.Fields;
@@ -29,6 +30,8 @@ public static class UdtSerializer
         return Deserialize(stream, Path.GetDirectoryName(path)!);
     }
 
+    private const string invalidNameChars = ".[]";
+    private static readonly SearchValues<char> invalidNameCharsSearch = SearchValues.Create(invalidNameChars);
     public static Result<UserDefinedType, string> Deserialize(StreamReader reader, string referenceDirectory)
     {
         var header = reader.ReadLine();
@@ -44,7 +47,7 @@ public static class UdtSerializer
         var nameEndIndex = span[nameIndex..].IndexOf('"') + nameIndex;
         var commentIndex = span.IndexOf("//");
         var name = span[nameIndex..nameEndIndex].ToString();
-        if (name.Contains('.')) return $"'{name}': names cannot contain '.'";
+        if (name.ContainsAny(invalidNameCharsSearch)) return $"'{name}': names cannot contain any of '{invalidNameChars}'";
         var comment = commentIndex > 0 ? span[commentIndex..].ToString() : string.Empty;
 
         var version = reader.ReadLine()!;
@@ -115,7 +118,7 @@ public static class UdtSerializer
                 lineEndIndex = commentIndex > 0 ? commentIndex : span.Length;
             }
             var name = span[..nameEndIndex].Trim();
-            if (name.Contains('.')) return $"'{name}': names cannot contain '.'";
+            if (name.ContainsAny(invalidNameCharsSearch)) return $"'{name}': names cannot contain any of '{invalidNameChars}'";
             name = name.Trim('"'); // names surrounded by "" seem to be reserved keywords
             var type = span[(separatorIndex + 1)..lineEndIndex].Trim();
 
