@@ -7,6 +7,7 @@ public sealed record UdtPrimitiveType(string Name, int BitSize, Type CSharpType)
     public int ByteSize { get; } = (int) float.Ceiling(BitSize / 8f);
 
     private static readonly FrozenDictionary<string, UdtPrimitiveType> _registry;
+    private static readonly FrozenDictionary<string, UdtPrimitiveType>.AlternateLookup<ReadOnlySpan<char>> _registrySpanLookup;
 
     static UdtPrimitiveType()
     {
@@ -42,12 +43,12 @@ public sealed record UdtPrimitiveType(string Name, int BitSize, Type CSharpType)
         ];
 
         _registry = types.ToFrozenDictionary(static t => t.Name, StringComparer.OrdinalIgnoreCase);
+        _registrySpanLookup = _registry.GetAlternateLookup<ReadOnlySpan<char>>();
     }
 
     public static UdtPrimitiveType Get(ReadOnlySpan<char> name)
     {
-        var lookup = _registry.GetAlternateLookup<ReadOnlySpan<char>>();
-        if(lookup.TryGetValue(name, out var result))
+        if(_registrySpanLookup.TryGetValue(name, out var result))
         {
             return result;
         }

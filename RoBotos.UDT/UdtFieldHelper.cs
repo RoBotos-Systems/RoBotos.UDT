@@ -4,21 +4,16 @@ namespace RoBotos.UDT;
 
 public static class UdtFieldHelper
 {
-    public static IEnumerable<AtomicField> Flatten(this IEnumerable<UdtField> entries, string prefix, char separator = '.')
+    public static IEnumerable<Marked<AtomicField>> Flatten(this IEnumerable<UdtField> entries, UdtFieldMarker prefix)
         => entries.SelectMany(entry => entry switch
         {
-            AtomicField primitive => [primitive with { Name = $"{prefix}{separator}{primitive.Name}" }],
-            CompoundField nested => nested.FlattenFields(prefix, separator),
+            AtomicField atomic => [new(prefix.Nest(atomic.Name), atomic)],
+            CompoundField nested => nested.FlattenFields(prefix.Nest(nested.Name)),
             _ => throw new UnreachableException(),
         });
 
-    public static IEnumerable<AtomicField> Flatten(this IEnumerable<UdtField> entries, char separator = '.')
-        => entries.SelectMany(entry => entry switch
-        {
-            AtomicField primitive => [primitive],
-            CompoundField nested => nested.FlattenFields(separator: separator),
-            _ => throw new UnreachableException(),
-        });
+    public static IEnumerable<Marked<AtomicField>> Flatten(this IEnumerable<UdtField> entries)
+        => entries.Flatten(UdtFieldMarker.Self);
 
     public static IEnumerable<AtomicField> EnumerateFlat(this IEnumerable<UdtField> entries)
         => entries.SelectMany(entry => entry switch
@@ -30,7 +25,10 @@ public static class UdtFieldHelper
         });
 
     public static string GetSqlExpressDefinition(this AtomicField field)
-        => $"{field.Name} {field.GetSqlExpressType()}";
+        => $"[{field.Name}] {field.GetSqlExpressType()}";
+
+    public static string GetSqlExpressDefinition(this Marked<AtomicField> field, char separator = '.')
+        => $"[{field.Marker.ToString(separator)}] {field.Field.GetSqlExpressType()}";
 
     public static string GetSqlExpressType(this AtomicField field) => field switch
     {
@@ -50,7 +48,7 @@ public static class UdtFieldHelper
         UdtPrimitiveType.ID.Int => "SMALLINT",
         UdtPrimitiveType.ID.DInt => "INT",
         UdtPrimitiveType.ID.LInt => "BIGINT",
-        UdtPrimitiveType.ID.Real => "FLOAT(24)", // FLOAT(24) is the same as REAL
+        UdtPrimitiveType.ID.Real => "FLOAT(24)", // same as REAL
         UdtPrimitiveType.ID.LReal => "FLOAT(53)",
         UdtPrimitiveType.ID.DateTime => "DATETIME2", // DATETIME is obsolete
         _ => throw new UnreachableException($"SQL Express type for S7 {type.Name} unknown"),

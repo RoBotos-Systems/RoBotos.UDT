@@ -6,10 +6,10 @@ public record StructField(string Name, ImmutableArray<UdtField> Fields, string C
 
     public override IEnumerable<UdtField> EnumerateFields() => Fields;
 
-    public override IEnumerable<AtomicField> FlattenFields(string? prefix = null, char separator = '.')
-        => string.IsNullOrWhiteSpace(prefix)
-            ? Fields.Flatten(Name, separator)
-            : Fields.Flatten($"{prefix}{separator}{Name}", separator);
+    public override IEnumerable<Marked<AtomicField>> FlattenFields(UdtFieldMarker? prefix = null)
+        => prefix is null
+            ? Fields.Flatten(UdtFieldMarker.Single(Name))
+            : Fields.Flatten(prefix.Nest(Name));
 
     public override int GetSize() => Fields.Sum(entry => entry.GetSize());
 

@@ -9,22 +9,21 @@ public sealed record ArrayField(string Name, UdtPrimitiveType Type, Range Range,
     /// <summary>
     /// Enumerates all elements by creating a simple element with its index as name
     /// </summary>
-    public override IEnumerable<UdtField> EnumerateFields() => FlattenImpl(static i => i.ToString());
-
-    /// <summary>
-    /// Flattens its elements by creating a simple field named Name.Index
-    /// </summary>
-    public override IEnumerable<AtomicField> FlattenFields(string? prefix = null, char separator = '.')
-    {
-        return string.IsNullOrWhiteSpace(prefix) ? FlattenImpl(i => $"{Name}{separator}{i}") : FlattenImpl(i => $"{prefix}{separator}{Name}{separator}{i}");
-    }
-
-    private IEnumerable<AtomicField> FlattenImpl(Func<int, string> nameSupplier)
+    public override IEnumerable<UdtField> EnumerateFields()
     {
         for (var i = StartIndex; i < EndIndex; i++)
         {
-            yield return new PrimitiveField(nameSupplier(i), Type, string.Empty, DefaultValue);
+            yield return new PrimitiveField(i.ToString(), Type, string.Empty, DefaultValue);
         }
+    }
+
+    /// <summary>
+    /// Flattens its elements by creating <see cref="PrimitiveField"/>s named Index and resturns a <see cref="MarkedAtomicField"/>
+    /// </summary>
+    public override IEnumerable<Marked<AtomicField>> FlattenFields(UdtFieldMarker? prefix = null)
+    {
+        var root = prefix?.Nest(Name) ?? new([Name]);
+        return EnumerateFields().Select(field => new Marked<AtomicField>(root.Nest(field.Name), (AtomicField)field));
     }
 
     public override int GetSize() => Type.ByteSize * Count;
