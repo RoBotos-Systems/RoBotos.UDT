@@ -8,7 +8,7 @@ public static class UdtFieldHelper
         => entries.SelectMany(entry => entry switch
         {
             AtomicField atomic => [new(prefix.Nest(atomic.Name), atomic)],
-            CompoundField nested => nested.FlattenFields(prefix.Nest(nested.Name)),
+            CompoundField nested => nested.FlattenFields(prefix),
             _ => throw new UnreachableException(),
         });
 
@@ -50,6 +50,9 @@ public static class UdtFieldHelper
         UdtPrimitiveType.ID.LInt => "BIGINT",
         UdtPrimitiveType.ID.Real => "FLOAT(24)", // same as REAL
         UdtPrimitiveType.ID.LReal => "FLOAT(53)",
+        UdtPrimitiveType.ID.Time => "BIGINT", // store ticks
+        UdtPrimitiveType.ID.Tod => "TIME(3)", // time of day with milliseconds
+        UdtPrimitiveType.ID.LTod => "TIME(7)", // time of day with nanoseconds
         UdtPrimitiveType.ID.DateTime => "DATETIME2", // DATETIME is obsolete
         _ => throw new UnreachableException($"SQL Express type for S7 {type.Name} unknown"),
     };

@@ -177,6 +177,7 @@ public static class UdtSerializer
     private static readonly FrozenSet<string> SpecialFieldNames = ["Type"];
     public static string Serialize(UserDefinedType structure)
     {
+        // Indentation in original udt files seems to be 3 spaces
         var sb = new StringBuilder();
         sb.Append($"TYPE \"{structure.Name}\"");
         AppendComment(structure.Comment).AppendLine();

@@ -34,6 +34,7 @@ public sealed record UdtPrimitiveType(string Name, int BitSize, Type CSharpType)
 
             new UdtPrimitiveType(ID.Time, BitSize: 32, typeof(TimeSpan)),
             new UdtPrimitiveType(ID.Tod, BitSize: 32, typeof(TimeOnly)),
+            new UdtPrimitiveType(ID.LTod, BitSize: 64, typeof(TimeOnly)),
             new UdtPrimitiveType(ID.Date, BitSize: 16, typeof(DateOnly)),
 
             // .NET DateTime covers year 1 to 10000, way more than any S7 date time format
@@ -82,7 +83,7 @@ public sealed record UdtPrimitiveType(string Name, int BitSize, Type CSharpType)
         public const string WString = "WString";
         public const string Date = "Date";
         public const string Tod = "TOD";
-        //public const string LTod = "LTOD";
+        public const string LTod = "LTOD";
         public const string DateTime = "Date_And_Time";
         public const string LDT = "LDT";
         public const string DTL = "DTL";
