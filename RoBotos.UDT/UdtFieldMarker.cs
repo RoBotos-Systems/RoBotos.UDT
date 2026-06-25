@@ -7,11 +7,7 @@ namespace RoBotos.UDT;
 [GenerateISpanParsable]
 public sealed partial class UdtFieldMarker(ImmutableList<string> ids) : IEquatable<UdtFieldMarker>, IOptionSpanParsable<UdtFieldMarker>
 {
-#if NET10_0_OR_GREATER
     public static UdtFieldMarker Self => field ??= new([]);
-#else
-    public static readonly UdtFieldMarker Self = new([]);
-#endif
     public static UdtFieldMarker Single(string name) => new([name]);
 
     public ImmutableList<string> IDs { get; } = ids;
