@@ -184,7 +184,7 @@ public static class UdtSerializer
 
         sb.AppendLine($"VERSION : {structure.Version}");
         sb.AppendLine("   STRUCT");
-        AppendEntries(structure.Fields, 2);
+        AppendEntries(structure.Fields.Values, 2);
 
         sb.AppendLine("   END_STRUCT;\n\nEND_TYPE\n");
 
@@ -224,7 +224,7 @@ public static class UdtSerializer
         {
             AppendName(structEntry.Name).Append($" : Struct");
             AppendComment(structEntry.Comment).AppendLine();
-            AppendEntries(structEntry.Fields, tabs + 1);
+            AppendEntries(structEntry.Fields.Values, tabs + 1);
             return Indent(tabs).AppendLine("END_STRUCT;");
         }
 

@@ -20,7 +20,7 @@ public static class UdtFieldHelper
         {
             AtomicField primitive => [primitive],
             ArrayField array => array.EnumerateFields().Cast<AtomicField>(),
-            StructField @struct => @struct.Fields.EnumerateFlat(),
+            StructField @struct => @struct.Fields.Values.EnumerateFlat(),
             _ => throw new UnreachableException(),
         });
 
